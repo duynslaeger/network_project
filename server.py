@@ -34,14 +34,13 @@ tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 tcpsock.bind(('127.0.0.1', 9090))
 
 while True:
-    tcpsock.listen(10)
+    tcpsock.listen(10) # 10 is the number of connections that can be queued
     print("En écoute...")
     (clientsocket, (ip, port)) = tcpsock.accept()
     newthread = ClientThread(ip, port, clientsocket)
     newthread.start()
-
-    ports_list.append(port)
-    print(ports_list)
+    
+    
 
     # Ici, j'envoie au client son port pour qu'il puisse le connaitre
     clientsocket.send(str(port).encode())
@@ -51,3 +50,6 @@ while True:
     if(message == "adresses_request"):
         list_to_send = str(ports_list)
         clientsocket.send(list_to_send.encode())
+    elif(message == "relay_connecting"):
+        ports_list.append(port)
+        print("Relay connected")

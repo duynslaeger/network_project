@@ -1,6 +1,7 @@
 import socket
 from cryptography.fernet import Fernet
 import threading
+import requests
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,31 +27,46 @@ tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 tcpsock.bind(('127.0.0.1', my_adress))
 
+key = Fernet.generate_key()
+print("Relay launched")
 while True:
     tcpsock.listen(10)
-    print("Relay launched")
+    print("En écoute...")
     (clientsocket, (ip, port)) = tcpsock.accept()
     newthread = ClientThread(ip, port, clientsocket)
     newthread.start()
 
-    message = clientsocket.recv(1024).decode()
-    print("Message received from client is: ", message)
-    if(message == "key_request"):
-        key = Fernet.generate_key()
+    message = clientsocket.recv(4096).decode()
+    message = eval(message)
+    print("Message received from client is: ", message[0])
+    if(message[0] == "key_request"):
         clientsocket.send(key)
-
-    # ----- TO DO -----
-    if(message == "send_to_next"):
-        message = clientsocket.recv(4096).decode()
+        clientsocket.close()
+    elif(message[0] == "send_to_next"):
+        submessage = message[1]
+        print("message received")
+        print(submessage)
         fernet = Fernet(key)
-        decrypted = fernet.decrypt(message.decode())
+        decrypted = fernet.decrypt(submessage.encode()).decode()
+        print("decrypted")
+        print(decrypted)
+        decrypted = eval(decrypted)
+        
         if(decrypted[0] == "last_node"):
-            #faire la requête sur internet
-            pass
+            resp = eval(decrypted[1])
+            resp = str(resp)
+            clientsocket.send(resp.encode())
         else :
-            #on sait que c'est un port d'un autre relais
-            #le relais envoie aussi un "send_to_next"
-            pass
+            print("sending to next node")
+            relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            relay_socket.connect(('127.0.0.1', int(decrypted[0])))
+            relay_socket.send(str(['send_to_next',decrypted[1]]).encode())
+            print("message sent")
+            print("waiting for response")
+            resp= relay_socket.recv(4096)
+            relay_socket.close()
+            clientsocket.send(resp)
+            
             
 
     #-----------------

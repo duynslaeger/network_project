@@ -1,6 +1,8 @@
 import socket
+import time
 from cryptography.fernet import Fernet
 import numpy as np
+import select
 
 
 HOST = '127.0.0.1'
@@ -13,7 +15,7 @@ my_adress = int(s.recv(1024).decode())
 
 # message = input(
 #     "Please paste the link of the website you would like to visit (https:// is required): \n")
-
+message = "requests.get('https://api.github.com/users/Dlawlet').json()"
 
 # Request the list of the addresses to the gateway
 s.send("adresses_request".encode())
@@ -23,10 +25,10 @@ nodes_ports = eval(nodes_ports.decode())
 
 # Sélectionner aléatoirement "length" ports parmi la liste des relais/clients disponibles
 
-length = len(nodes_ports) - 1  # -1 for not counting ourselves
+length = len(nodes_ports)+1  # -1 for not counting ourselves
 
 rgen = np.random.default_rng()
-rand_path_length = rgen.integers(low=1, high=length, size=1)[0]
+rand_path_length = rgen.integers(low=length-1, high=length, size=1)[0]  # because i have create 6 relays for the moment
 
 path_addresses = []
 used = [my_adress]
@@ -45,33 +47,42 @@ keys = []
 
 for relay_port in path_addresses:
     relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    relay_socket.connect((HOST, relay_port))
-    relay_socket.send('key_request'.encode())
-    response = relay_socket.recv(1024).decode()
-    keys.append(response)
+    try:
+        relay_socket.connect((HOST, relay_port))
+        relay_socket.send(str(['key_request']).encode())
+        relay_socket.setblocking(0)
+        ready = select.select([relay_socket], [], [], 5)
+        if ready[0]:
+            response = relay_socket.recv(1024).decode()
+            keys.append(response)
+    except:
+        print("connection failed")
+        pass
 
+print("all keys received")
 
-rev_keys = reversed(keys)
-print(keys)
-
-message = 'https://www.ecosia.org/'
+#message = 'https://www.ecosia.org/'
 # QUESTION : est ce que les ports des relais auront toujours la même taille ?
 
 # Here we prepare the last message. When the last relais will find the first part of the message as "last_node", it knows that it needs to open the browser
 f = Fernet(keys[-1])
-new_message = 'last_node' + message
-message = f.encrypt(new_message.encode()).decode()
+new_message = ['last_node', message ]
+message = f.encrypt(str(new_message).encode()).decode()
 # Here we prepare the other messages
 for i in reversed(range(len(keys) - 1)):
     f = Fernet(keys[i])
-    new_message = str(path_addresses[i]) + message
-    message = f.encrypt(new_message.encode()).decode()
+    new_message = [str(path_addresses[i]), message]
+    message = f.encrypt(str(new_message).encode()).decode()
 
-# print(message)
+#print(" le message onion est :", message)
 
 # ----------- Uncomment the next lines for sending the encrypted message to the first relay -----------
 
-# relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# relay_socket.connect((HOST, path_addresses[0]))
-# relay_socket.send('send_to_next'.encode())
-# relay_socket.send(message.encode())
+relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+relay_socket.connect((HOST, path_addresses[0]))
+relay_socket.send(str(['send_to_next',message]).encode())
+print("message sent")
+responses = relay_socket.recv(4096).decode()
+relay_socket.close()
+print(responses)
+exit()
