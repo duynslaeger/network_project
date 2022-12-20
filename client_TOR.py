@@ -36,13 +36,12 @@ while(count < rand_path_length):
     rand_index = rgen.integers(low=0, high=length - 1, size=1)[0]
     if(nodes_ports[rand_index] not in used):
         path_addresses.append(int(nodes_ports[rand_index]))
+        used.append(int(nodes_ports[rand_index]))
         count += 1
 
 print(path_addresses)
 
 keys = []
-
-# ------------- TO DO --------------
 
 for relay_port in path_addresses:
     relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +50,6 @@ for relay_port in path_addresses:
     response = relay_socket.recv(1024).decode()
     keys.append(response)
 
-# -------------------------------
 
 rev_keys = reversed(keys)
 print(keys)

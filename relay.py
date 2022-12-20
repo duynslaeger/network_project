@@ -39,9 +39,18 @@ while True:
         key = Fernet.generate_key()
         clientsocket.send(key)
 
-    ## ----- TO DO -----
-    # if(message == "send_to_next"):
-    #     message = clientsocket.recv(4096).decode()
-    #     fernet = Fernet(key)
-    #     fernet.decrypt(message.decode())
+    # ----- TO DO -----
+    if(message == "send_to_next"):
+        message = clientsocket.recv(4096).decode()
+        fernet = Fernet(key)
+        decrypted = fernet.decrypt(message.decode())
+        if(decrypted[0] == "last_node"):
+            #faire la requête sur internet
+            pass
+        else :
+            #on sait que c'est un port d'un autre relais
+            #le relais envoie aussi un "send_to_next"
+            pass
+            
+
     #-----------------
