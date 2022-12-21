@@ -28,4 +28,5 @@ The **killall** command required the **psmisc** package. If you don't have it, y
  	```sh
 	$ sudo apt-get install psmisc
 	```
+	
 ***Warning*** : the **killall python** command will kill every python processes running on your computer. Use it conscienciously. 
