@@ -3,19 +3,15 @@
 ## Instruction to launch the network (run the code) and close it
 
 To launch the TOR network, go to your directory where this project's files are and run the following command : 
-
 	'''sh
 	$ bash launch_network.sh n
 	'''
-
 with "n" the number of relays you want in the network.
 
 Then, to launch a client : 
-
 	'''sh
 	$ python client_TOR.py
 	'''
-
 After launching the client, instructions will be given to you. Follow them to make your request to the network.
 
 If you want to launch an additionnal relay after the TOR network has been created, just do :
