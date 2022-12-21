@@ -12,13 +12,13 @@ class ClientThread(threading.Thread):
         self.port = port
         self.key = key
         self.clientsocket = clientsocket
-        print("[+] New thread for %s %s" % (self.ip, self.port,))
+        # print("[+] New thread for %s %s \n" % (self.ip, self.port,))
 
     def run(self):
-        print("Connection from %s %s" % (self.ip, self.port,))
+        # print("Realy connection from %s %s \n" % (self.ip, self.port,))
         message = self.clientsocket.recv(1024).decode()
         message = eval(message)
-        print("Message received from client is: ", message)
+        # print("The message received at the relay ", self.port," is: ", message,"\n")
         if(message[0] == "key_request"):
             self.clientsocket.send(self.key)
             self.clientsocket.close()
@@ -54,7 +54,7 @@ def main():
     key = Fernet.generate_key()
     while True:
         tcpsock.listen(10)
-        print("Relay listening...")
+        # print("Relay listening...\n")
         (clientsocket, (ip, port)) = tcpsock.accept()
         newthread = ClientThread(ip, port, clientsocket, key)
         newthread.start()
