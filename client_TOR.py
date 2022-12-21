@@ -19,12 +19,16 @@ message = "requests.get('https://api.github.com/users/Dlawlet').json()"
 s.send("adresses_request".encode())
 nodes_ports = s.recv(4096)
 nodes_ports = eval(nodes_ports.decode())
+# print(nodes_ports)
 
 
-length = len(nodes_ports) - 1  # -1 for not counting ourselves
+length = len(nodes_ports)
 rgen = np.random.default_rng()
 # now we choose the length of the path randomly
-rand_path_length = rgen.integers(low=1, high=length, size=1)[0]
+if(len(nodes_ports) == 1):
+    rand_path_length = 1
+else:
+    rand_path_length = rgen.integers(low=1, high=length, size=1)[0]
 
 
 path_addresses = []
@@ -38,7 +42,7 @@ while(count < rand_path_length):
         used.append(int(nodes_ports[rand_index]))
         count += 1
 
-print(path_addresses)
+# print(path_addresses)
 
 keys = []
 
@@ -59,6 +63,7 @@ for relay_port in path_addresses:
 f = Fernet(keys[-1])
 new_message = ['last_node', message]
 message = f.encrypt(str(new_message).encode()).decode()
+
 # Here we prepare the other messages
 for i in reversed(range(len(keys) - 1)):
     f = Fernet(keys[i])
