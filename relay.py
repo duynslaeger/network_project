@@ -16,7 +16,7 @@ class ClientThread(threading.Thread):
 
     def run(self):
         # print("Realy connection from %s %s \n" % (self.ip, self.port,))
-        message = self.clientsocket.recv(1024).decode()
+        message = self.clientsocket.recv(163840).decode()
         message = eval(message)
         # print("The message received at the relay ", self.port," is: ", message,"\n")
         if(message[0] == "key_request"):
@@ -36,7 +36,7 @@ class ClientThread(threading.Thread):
                     socket.AF_INET, socket.SOCK_STREAM)
                 relay_socket.connect(('127.0.0.1', int(decrypted[0])))
                 relay_socket.send(str(['send_to_next', decrypted[1]]).encode())
-                resp = relay_socket.recv(4096)
+                resp = relay_socket.recv(16384)
                 relay_socket.close()
                 self.clientsocket.send(resp)
 
