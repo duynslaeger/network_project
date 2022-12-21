@@ -69,20 +69,26 @@ f = Fernet(keys[-1])
 new_message = ['last_node', message ]
 message = f.encrypt(str(new_message).encode()).decode()
 # Here we prepare the other messages
-for i in reversed(range(len(keys) - 1)):
+for i in reversed(range(len(keys)-1 )):
     f = Fernet(keys[i])
-    new_message = [str(path_addresses[i]), message]
+    print(path_addresses[i+1])
+    new_message = [str(path_addresses[i+1]), message]
     message = f.encrypt(str(new_message).encode()).decode()
 
 #print(" le message onion est :", message)
 
 # ----------- Uncomment the next lines for sending the encrypted message to the first relay -----------
-
+ 
 relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 relay_socket.connect((HOST, path_addresses[0]))
 relay_socket.send(str(['send_to_next',message]).encode())
-print("message sent")
-responses = relay_socket.recv(4096).decode()
+print("message sent à ", path_addresses[0])
+relay_socket.setblocking(0)
+ready = select.select([relay_socket], [], [], 5)
+if ready[0]:
+    responses = eval(relay_socket.recv(4096).decode())
 relay_socket.close()
-print(responses)
-exit()
+print("\n QUERY RESULT: \n the user of github %s has %s public(s) repository(s)\n" %(responses['login'],responses['public_repos']))
+"""exit()
+while 1:
+    pass"""
