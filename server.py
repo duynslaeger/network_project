@@ -15,10 +15,10 @@ class ClientThread(threading.Thread):
         self.ip = ip
         self.port = port
         self.clientsocket = clientsocket
-        print("[+] Nouveau thread pour %s %s" % (self.ip, self.port,))
+        print("[+] New thread for %s %s" % (self.ip, self.port,))
 
     def run(self):
-        print("Connexion de %s %s" % (self.ip, self.port,))        
+        print("Connection from %s %s" % (self.ip, self.port,))        
         # here we send the port of the client to the client.
         self.clientsocket.send(str(self.port).encode())
         # here we receive the message from the client to validate the connection
@@ -29,7 +29,7 @@ class ClientThread(threading.Thread):
             self.clientsocket.send(list_to_send.encode())
         elif(message == "relay_connecting"):                             # if it is a relay, we add it to the list of relays
             ports_list.append(self.port)
-            print("Relay connected")
+            print("Relay ", self.port," connected")
         
         # Check if client is still connected
         while True:
@@ -51,7 +51,7 @@ def main():
 
     while True:
         tcpsock.listen(10) # 10 is the number of connections that can be queued
-        print("En écoute...")
+        print("Listening...")
         (clientsocket, (ip, port)) = tcpsock.accept()
         newthread = ClientThread(ip, port, clientsocket)
         newthread.start()
