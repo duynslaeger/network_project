@@ -2,16 +2,13 @@
 
 import socket
 import threading
-
-# To find automatically the private local adress run :
-# host = socket.gethostbyname(socket.gethostname()) (won't work if using virtual box. If using it, it will take the ip adress of the virtual machine)
-# Dans notre cas, c'est une bonne chose si le serveur accepte toutes les requêtes
-# Ici on a deux socket, un hosting socket (tcpsock) et un individual socket used for communicating with an individual client
-
-ports_list = []
-
+import time
 
 class ClientThread(threading.Thread):
+    """ Here we define the thread that will handle the client
+     It will receive the ip and port of the client and the socket
+     in th run function, we will handle the connect to client and 
+     we relay and check if they are still connected every 5 seconds"""
 
     def __init__(self, ip, port, clientsocket):
         threading.Thread.__init__(self)
@@ -21,35 +18,44 @@ class ClientThread(threading.Thread):
         print("[+] Nouveau thread pour %s %s" % (self.ip, self.port,))
 
     def run(self):
-        print("Connexion de %s %s" % (self.ip, self.port,))
+        print("Connexion de %s %s" % (self.ip, self.port,))        
+        # here we send the port of the client to the client.
+        self.clientsocket.send(str(self.port).encode())
+        # here we receive the message from the client to validate the connection
+        message = self.clientsocket.recv(1024).decode()
+        # here we check if the client is a relay or a client
+        if(message == "adresses_request"):                               # if it is a client, we send the list of relays to the client
+            list_to_send = str(ports_list)
+            self.clientsocket.send(list_to_send.encode())
+        elif(message == "relay_connecting"):                             # if it is a relay, we add it to the list of relays
+            ports_list.append(self.port)
+            print("Relay connected")
+        
+        # Check if client is still connected
+        while True:
+            try:
+                self.clientsocket.send(b'ping')
+                time.sleep(5)
+            except socket.error as e:
+                self.clientsocket.close()
+                if self.port in ports_list:
+                    ports_list.remove(self.port)
+                break
+        return
 
+def main():
+    # Here we create the socket and we bind it to the port 9090
+    tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    tcpsock.bind(('127.0.0.1', 9090))
 
-# AF_INET means it is used for internet
-tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# SOCK_STREAM -> TCP
-# SOCK_DGRAM -> UDP
-# ???? Qu'est ce que ça fait, ça ? ????
-tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# 127.0.0.1 ip of local host (juste sur cet ordinateur)
-tcpsock.bind(('127.0.0.1', 9090))
+    while True:
+        tcpsock.listen(10) # 10 is the number of connections that can be queued
+        print("En écoute...")
+        (clientsocket, (ip, port)) = tcpsock.accept()
+        newthread = ClientThread(ip, port, clientsocket)
+        newthread.start()
 
-while True:
-    tcpsock.listen(10) # 10 is the number of connections that can be queued
-    print("En écoute...")
-    (clientsocket, (ip, port)) = tcpsock.accept()
-    newthread = ClientThread(ip, port, clientsocket)
-    newthread.start()
-    
-    
-
-    # Ici, j'envoie au client son port pour qu'il puisse le connaitre
-    clientsocket.send(str(port).encode())
-
-    message = clientsocket.recv(1024).decode()
-    print("Message from client is: ", message)
-    if(message == "adresses_request"):
-        list_to_send = str(ports_list)
-        clientsocket.send(list_to_send.encode())
-    elif(message == "relay_connecting"):
-        ports_list.append(port)
-        print("Relay connected")
+if __name__ == "__main__":
+    ports_list = []
+    main()

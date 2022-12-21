@@ -9,12 +9,10 @@ HOST = '127.0.0.1'
 PORT = 9090
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))  # this sends a request to the "server"
-# Est ce que mettre le rcv dans le int() peut poser un soucis ? Apparemment non
+s.connect((HOST, PORT))  # connect to the gateway
 my_adress = int(s.recv(1024).decode())
 
-# message = input(
-#     "Please paste the link of the website you would like to visit (https:// is required): \n")
+# the message to send through the TOR network
 message = "requests.get('https://api.github.com/users/Dlawlet').json()"
 
 # Request the list of the addresses to the gateway
@@ -23,12 +21,12 @@ nodes_ports = s.recv(4096)
 nodes_ports = eval(nodes_ports.decode())
 
 
-# Sélectionner aléatoirement "length" ports parmi la liste des relais/clients disponibles
 
 length = len(nodes_ports)+1  # -1 for not counting ourselves
-
 rgen = np.random.default_rng()
-rand_path_length = rgen.integers(low=length-1, high=length, size=1)[0]  # because i have create 6 relays for the moment
+rand_path_length = rgen.integers(low=length-1, high=length, size=1)[0]  # here we choose the length of the path randomly
+                                                                        #actually we choose the length of the path to be 
+                                                                        # equal to the number of nodes in the network
 
 path_addresses = []
 used = [my_adress]
@@ -59,12 +57,6 @@ for relay_port in path_addresses:
         print("connection failed")
         pass
 
-print("all keys received")
-
-#message = 'https://www.ecosia.org/'
-# QUESTION : est ce que les ports des relais auront toujours la même taille ?
-
-# Here we prepare the last message. When the last relais will find the first part of the message as "last_node", it knows that it needs to open the browser
 f = Fernet(keys[-1])
 new_message = ['last_node', message ]
 message = f.encrypt(str(new_message).encode()).decode()
@@ -75,9 +67,6 @@ for i in reversed(range(len(keys)-1 )):
     new_message = [str(path_addresses[i+1]), message]
     message = f.encrypt(str(new_message).encode()).decode()
 
-#print(" le message onion est :", message)
-
-# ----------- Uncomment the next lines for sending the encrypted message to the first relay -----------
  
 relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 relay_socket.connect((HOST, path_addresses[0]))
@@ -89,6 +78,3 @@ if ready[0]:
     responses = eval(relay_socket.recv(4096).decode())
 relay_socket.close()
 print("\n QUERY RESULT: \n the user of github %s has %s public(s) repository(s)\n" %(responses['login'],responses['public_repos']))
-"""exit()
-while 1:
-    pass"""
