@@ -2,6 +2,7 @@ import socket
 from cryptography.fernet import Fernet
 import threading
 import requests
+import webbrowser
 
 
 class ClientThread(threading.Thread):

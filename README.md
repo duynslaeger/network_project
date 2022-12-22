@@ -1,5 +1,16 @@
 # Communication Network Project : TOR Network
 
+## Instruction to install the packages required for running the network
+
+To install the packages required for running the network, run the following command : 
+```sh
+$ pip install -r requirements.txt
+```
+Or, if you are using python3 :
+```sh
+$ pip3 install -r requirements.txt
+```
+
 ## Instruction to launch the network (run the code) and close it
 
 - To launch the TOR network, go to your directory where this project's files are and run the following command : 
@@ -32,13 +43,3 @@ The **killall** command required the **psmisc** package. If you don't have it, y
 ***Warning*** : the ```killall python``` command will kill every python processes running on your computer. Use it conscienciously. 
 
 
-## Instruction to install the packages required for running the network
-
-- To install the packages required for running the network, run the following command : 
-	```sh
-	$ pip install -r requirements.txt
-	```
-Or, if you are using python3 :
-```sh
-$ pip3 install -r requirements.txt
-```

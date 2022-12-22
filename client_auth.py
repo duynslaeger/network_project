@@ -190,24 +190,24 @@ if __name__ == '__main__':
     main()
 
 
-def main():
-    # create a socket object
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# def main():
+#     # create a socket object
+#     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # get local machine name
-    host = socket.gethostname()
+#     # get local machine name
+#     host = socket.gethostname()
 
-    # connection to hostname on the port.
-    client.connect((host, 1233))
+#     # connection to hostname on the port.
+#     client.connect((host, 1233))
 
-    # receive data from the server
-    response = client.recv(1024).decode()
-    print(response)
+#     # receive data from the server
+#     response = client.recv(1024).decode()
+#     print(response)
 
-    # send a message to the server
-    message = input("Enter your message: ")
-    client.send(message.encode())
+#     # send a message to the server
+#     message = input("Enter your message: ")
+#     client.send(message.encode())
 
-    # receive data from the server
-    response = client.recv(1024).decode()
-    print(response)
+#     # receive data from the server
+#     response = client.recv(1024).decode()
+#     print(response)
