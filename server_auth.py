@@ -13,7 +13,7 @@ try:
 except socket.error as e:
     print(str(e))
 
-print('Waitiing for a Connection..')
+print('Waiting for a connection...')
 ServerSocket.listen(5)
 HashTable = {}
 
@@ -21,7 +21,10 @@ HashTable = {}
 # Function : For each client
 def threaded_client(connection):
 
-    connection.send(str.encode('Enter l for login or s sign up'))  # Request Username
+    # Request Username
+    connection.send(str.encode(
+        'Do you want to login or to sign up ? [l/s] : '))
+    print('\n')
     l_s = connection.recv(2048)
 
     if l_s == b's':
@@ -32,12 +35,13 @@ def threaded_client(connection):
         password = connection.recv(2048)
         password = password.decode()
         name = name.decode()
-        password = hashlib.sha256(str.encode(password)).hexdigest()  # Password hash using SHA256
+        # Password hash using SHA256
+        password = hashlib.sha256(str.encode(password)).hexdigest()
         # REGISTERATION PHASE
         # If new user,  regiter in Hashtable Dictionary
         if name not in HashTable:
             HashTable[name] = password
-            connection.send(str.encode('Registeration Successful'))
+            connection.send(str.encode('Registeration successful'))
             print('Registered : ', name)
             print("{:<8} {:<20}".format('USER', 'PASSWORD'))
             for k, v in HashTable.items():
@@ -48,7 +52,8 @@ def threaded_client(connection):
         else:
             # If already existing user, check if the entered password is correct
             if (HashTable[name] == password):
-                connection.send(str.encode('Saving Failed'))  # Response Code for Connected Client
+                # Response Code for Connected Client
+                connection.send(str.encode('Saving Failed'))
                 print('Saving Failed : ', name)
             else:
                 HashTable[name] = password
@@ -66,7 +71,8 @@ def threaded_client(connection):
         password = connection.recv(2048)
         password = password.decode()
         name = name.decode()
-        password = hashlib.sha256(str.encode(password)).hexdigest()  # Password hash using SHA256
+        # Password hash using SHA256
+        password = hashlib.sha256(str.encode(password)).hexdigest()
         # REGISTERATION PHASE
         # If new user,  regiter in Hashtable Dictionary
         if name not in HashTable:
@@ -78,12 +84,14 @@ def threaded_client(connection):
         else:
             # If already existing user, check if the entered password is correct
             if (HashTable[name] == password):
-                connection.send(str.encode('Connection Successful'))  # Response Code for Connected Client
+                # Response Code for Connected Client
+                connection.send(str.encode('Connection Successful'))
                 print('Connection : ', name)
                 print("-------------------------------------------")
             else:
                 HashTable[name] = password
                 print("-------------------------------------------")
+
 
 while True:
     Client, address = ServerSocket.accept()

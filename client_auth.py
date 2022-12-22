@@ -125,7 +125,7 @@ elif response == 'Login Failed':
 elif response == 'Saving Failed':
     print('Saveing Failed and you are disconnected')
     #a change pour pouvoir se save directement
-    print('you have to run again client if you want to save')
+    print('You have to run again client if you want to save')
     client.close()
 else:
     #Si on tape
