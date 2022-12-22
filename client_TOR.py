@@ -19,7 +19,7 @@ message = "requests.get('https://api.github.com/users/Dlawlet').json()"
 s.send("adresses_request".encode())
 nodes_ports = s.recv(4096)
 nodes_ports = eval(nodes_ports.decode())
-print("The total number of relays is : ",nodes_ports)
+print("The total number of relays is : ", nodes_ports)
 
 
 length = len(nodes_ports)
@@ -36,13 +36,16 @@ used = [my_adress]
 count = 0
 
 while(count < rand_path_length):
-    rand_index = rgen.integers(low=0, high=length - 1, size=1)[0]
+    if(length == 1):
+        rand_index = 0
+    else:
+        rand_index = rgen.integers(low=0, high=length - 1, size=1)[0]
     if(nodes_ports[rand_index] not in used):
         path_addresses.append(int(nodes_ports[rand_index]))
         used.append(int(nodes_ports[rand_index]))
         count += 1
 
-print("The path is : ",path_addresses)
+print("The path is : ", path_addresses)
 
 keys = []
 
