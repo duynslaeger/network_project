@@ -50,20 +50,8 @@ def threaded_client(connection):
             print("-------------------------------------------")
 
         else:
-            # If already existing user, check if the entered password is correct
-            if (HashTable[name] == password):
-                # Response Code for Connected Client
-                connection.send(str.encode('Saving Failed'))
-                print('Saving Failed : ', name)
-            else:
-                HashTable[name] = password
-                connection.send(str.encode('Registeration Successful'))
-                print('Registered : ', name)
-                print("{:<8} {:<20}".format('USER', 'PASSWORD'))
-                for k, v in HashTable.items():
-                    label, num = k, v
-                    print("{:<8} {:<20}".format(label, num))
-                print("-------------------------------------------")
+            print("Error : This username is already used.")
+            print("-------------------------------------------")
     elif l_s == b'l':
         connection.send(str.encode('ENTER USERNAME : '))  # Request Username
         name = connection.recv(2048)
@@ -78,7 +66,8 @@ def threaded_client(connection):
         if name not in HashTable:
             HashTable[name] = password
             connection.send(str.encode('Login Failed'))
-            print('Login Failed : you have to change your name or/and your password')
+            print(
+                'Login Failed : This username has not been registered yet. Please sign up before logging in.')
             print("-------------------------------------------")
 
         else:
@@ -86,10 +75,11 @@ def threaded_client(connection):
             if (HashTable[name] == password):
                 # Response Code for Connected Client
                 connection.send(str.encode('Connection Successful'))
-                print('Connection : ', name)
+                print('User : ', name, 'connected')
                 print("-------------------------------------------")
             else:
-                HashTable[name] = password
+                print(
+                    'Login Failed : Wrong password')
                 print("-------------------------------------------")
 
 
