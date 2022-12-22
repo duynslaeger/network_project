@@ -36,9 +36,9 @@ The **killall** command required the **psmisc** package. If you don't have it, y
 
 - To install the packages required for running the network, run the following command : 
 	```sh
-	$ pip install -r requirement.txt
+	$ pip install -r requirements.txt
 	```
 Or, if you are using python3 :
 ```sh
-$ pip3 install -r requirement.txt
+$ pip3 install -r requirements.txt
 ```
