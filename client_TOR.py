@@ -28,10 +28,10 @@ elif(answer == "git"):
     user = input(
         "Please enter the git username you want informations about : ")
     print("\n")
-    message = "requests.get('https://api.github.com/users/" + \
+    message = "response=requests.get('https://api.github.com/users/" + \
         str(user) + "').json()"
 elif(answer == "server"):
-    message = str(['127.0.0.1', 1233])
+    message = "serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\nserv.connect(('127.0.0.1', 1233))\nresponse=serv.recv(4096).decode()"
     print("\n")
     pass
 
@@ -83,24 +83,36 @@ for relay_port in path_addresses:
         pass
 
 f = Fernet(keys[-1])
-new_message = ['last_node', message]
-message = f.encrypt(str(new_message).encode()).decode()
-
-# Here we prepare the other messages
-for i in reversed(range(len(keys) - 1)):
-    f = Fernet(keys[i])
-    new_message = [str(path_addresses[i + 1]), message]
+def encrypt_message(message):
+    global f
+    new_message = ['last_node', message]
     message = f.encrypt(str(new_message).encode()).decode()
+
+    # Here we prepare the other messages
+    for i in reversed(range(len(keys) - 1)):
+        f = Fernet(keys[i])
+        new_message = [str(path_addresses[i + 1]), message]
+        message = f.encrypt(str(new_message).encode()).decode()
+    return message
+
 
 
 relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 relay_socket.connect((Server_HOST, path_addresses[0]))
-relay_socket.send(str(['send_to_next', message]).encode())
-relay_socket.setblocking(0)
-ready = select.select([relay_socket], [], [], 5)
-if ready[0]:
-    if(answer == "git"):
-        responses = eval(relay_socket.recv(4096).decode())
-        print("\n QUERY RESULT: \n the user of github %s has %s public(s) repository(s)\n" %
-              (responses['login'], responses['public_repos']))
+relay_socket.send(str(['send_to_next', encrypt_message(message)]).encode())
+
+if(answer == "git"):
+    responses = eval(relay_socket.recv(4096).decode())
+    print("\n QUERY RESULT: \n the user of github %s has %s public(s) repository(s)\n" %
+            (responses['login'], responses['public_repos']))
+if(answer == "web"):
+    print("\n QUERY RESULT: \n the web page was opened successfully \n")
+if(answer == "server"):
+    while True:
+        response = relay_socket.recv(4096).decode()
+        if(response == "end"):
+            break
+        else:
+            print(response)
+            relay_socket.send(str(['send_to_next', encrypt_message("serv.send("+str(input())+")")]).encode())
 relay_socket.close()

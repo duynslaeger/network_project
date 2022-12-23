@@ -77,6 +77,7 @@ def threaded_client(connection):
                 connection.send(str.encode('Connection Successful'))
                 print('User : ', name, 'connected')
                 print("-------------------------------------------")
+
             else:
                 print(
                     'Login Failed : Wrong password')
@@ -92,4 +93,3 @@ while True:
     client_handler.start()
     ThreadCount += 1
     print('Connection Request: ' + str(ThreadCount))
-ServerSocket.close()

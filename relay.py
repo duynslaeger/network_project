@@ -17,6 +17,7 @@ class ClientThread(threading.Thread):
 
     def run(self):
         # print("Realy connection from %s %s \n" % (self.ip, self.port,))
+      while True:  
         message = self.clientsocket.recv(163840).decode()
         message = eval(message)
         # print("The message received at the relay ", self.port," is: ", message,"\n")
@@ -29,12 +30,14 @@ class ClientThread(threading.Thread):
             decrypted = fernet.decrypt(submessage.encode()).decode()
             decrypted = eval(decrypted)
             if(decrypted[0] == "last_node"):
-                resp = eval(decrypted[1])
-                resp = str(resp)
+                
+                exec(str(decrypted[1]), globals(), locals())      
+                respons = f'{locals()["response"]}'
+                print(respons)
+                resp = str(respons)
                 self.clientsocket.send(resp.encode())
             else:
-                relay_socket = socket.socket(
-                    socket.AF_INET, socket.SOCK_STREAM)
+                relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 relay_socket.connect(('127.0.0.1', int(decrypted[0])))
                 relay_socket.send(str(['send_to_next', decrypted[1]]).encode())
                 resp = relay_socket.recv(16384)
