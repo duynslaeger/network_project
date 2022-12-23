@@ -1,7 +1,7 @@
 #!/bin/bash
 
 n=$1
-python server.py &
+python gateway.py &
 sleep 0.1 #to ensure that the server is launched before the relays
 for (( i=1 ; i<=$n ; i++ )); 
 do
