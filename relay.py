@@ -33,16 +33,17 @@ class ClientThread(threading.Thread):
                 
                 exec(str(decrypted[1]), globals(), locals())      
                 respons = f'{locals()["response"]}'
-                print(respons)
                 resp = str(respons)
-                self.clientsocket.send(resp.encode())
+                encr = fernet.encrypt(resp.encode())
+                self.clientsocket.send(encr)
             else:
                 relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 relay_socket.connect(('127.0.0.1', int(decrypted[0])))
                 relay_socket.send(str(['send_to_next', decrypted[1]]).encode())
                 resp = relay_socket.recv(16384)
+                encr = fernet.encrypt(resp)
+                self.clientsocket.send(encr)
                 relay_socket.close()
-                self.clientsocket.send(resp)
 
 
 def main():

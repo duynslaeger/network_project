@@ -101,6 +101,13 @@ def encrypt_message(message):
         message = f.encrypt(str(new_message).encode()).decode()
     return message
 
+def decrypt_message(message):
+    global f
+    for i in range(len(keys)):
+        f = Fernet(keys[i])
+        message = f.decrypt(message.encode()).decode()
+        return message
+
 
 
 # Connection to the first relay of the path and send it the onion
@@ -109,14 +116,14 @@ relay_socket.connect((Server_HOST, path_addresses[0]))
 relay_socket.send(str(['send_to_next', encrypt_message(message)]).encode())
 
 if(answer == "git"):
-    responses = eval(relay_socket.recv(4096).decode())
+    responses = eval(decrypt_message((relay_socket.recv(4096).decode())))
     print("\n QUERY RESULT: \n the user of github %s has %s public(s) repository(s)\n" %
             (responses['login'], responses['public_repos']))
 if(answer == "web"):
     print("\n QUERY RESULT: \n the web page was opened successfully \n")
 if(answer == "server"):
     while True:
-        response = relay_socket.recv(4096).decode()
+        response = decrypt_message(relay_socket.recv(4096).decode())
         if(response == "end"):
             break
         else:
