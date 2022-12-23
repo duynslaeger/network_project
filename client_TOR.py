@@ -114,5 +114,6 @@ if(answer == "server"):
             break
         else:
             print(response)
-            relay_socket.send(str(['send_to_next', encrypt_message("serv.send("+str(input())+")")]).encode())
+            message = "serv.send(b'"+input()+"')\nresponse=serv.recv(4096).decode()"
+            relay_socket.send(str(['send_to_next', encrypt_message(message)]).encode())
 relay_socket.close()
