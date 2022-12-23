@@ -34,7 +34,14 @@ for running a relay (execute it n times in n terminals if you want n relays)
 	```sh
 	$ python client_TOR.py
 	```
-After launching the client, instructions will be given to you. Follow them to make your request to the network.
+After launching the client, instructions will be given to you. Follow them to make your request to the network. You can either conncet to a web page typing "web", receive informations about the number of public git repositories of a git user byt typing "git" or login/sign up to a server by typing "server". **Attention** : specific conditions need to be required for login/sign up on the server. Please see next section. 
+
+- If you want to connect and login in a server (Challenge-Response based Authentication) : 
+	The launcher_network.sh has to be launched with **nor more than 2** relays for doing this. If we have more than two relays, we have a problem that we discuss more in details in the report. Once the network_launcher is launched, run the server_auth.py script : 
+	```sh
+	$ python server_auth.py
+	```
+	And then run the client_TOR.py and type "server". 
 
 - If you want to launch an additionnal relay after the TOR network has been created, just do :
 	```sh

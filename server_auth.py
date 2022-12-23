@@ -41,7 +41,7 @@ def threaded_client(connection):
         # If new user,  regiter in Hashtable Dictionary
         if name not in HashTable:
             HashTable[name] = password
-            connection.send(str.encode('Registeration successful'))
+            connection.send(str.encode('Registeration successful. Please restart the script to continue to use the client.'))
             print('Registered : ', name)
             print("{:<8} {:<20}".format('USER', 'PASSWORD'))
             for k, v in HashTable.items():
@@ -74,7 +74,7 @@ def threaded_client(connection):
             # If already existing user, check if the entered password is correct
             if (HashTable[name] == password):
                 # Response Code for Connected Client
-                connection.send(str.encode('Connection Successful'))
+                connection.send(str.encode('Connection Successful ! Please restart the script to continue to use the client.'))
                 print('User : ', name, 'connected')
                 print("-------------------------------------------")
 

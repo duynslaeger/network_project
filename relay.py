@@ -33,7 +33,7 @@ class ClientThread(threading.Thread):
                 
                 exec(str(decrypted[1]), globals(), locals())      
                 respons = f'{locals()["response"]}'
-                print(respons)
+                # print(respons)
                 resp = str(respons)
                 self.clientsocket.send(resp.encode())
             else:
