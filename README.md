@@ -17,9 +17,20 @@ $ pip3 install -r requirements.txt
 	```sh
 	$ bash launch_network.sh n
 	```
-with "n" the number of relays you want in the network.
+with "n" the number of relays you want in the network. 
+***Note*** : this bash script can only be executed in linux or in macOS. If you are on windows or any other OS, you might have to run every script separately by doing : 
+	```sh
+	$ python server.py
+	```
+for running the server, and
+	```sh
+	$ python relay.py
+	```
+for running a relay (execute it n times in n terminals if you want n relays)
+
 
 - To launch a client : 
+
 	```sh
 	$ python client_TOR.py
 	```

@@ -5,17 +5,21 @@ import numpy as np
 import select
 
 
-Server_HOST = '127.0.0.1'
-Server_PORT = 9090
+Server_HOST = '127.0.0.1' # Host IP
+Server_PORT = 9090 # Arbitrary unused port
 
+# Creates a socket to establish a TCP between the client and the gateway
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((Server_HOST, Server_PORT))  # connect to the gateway
+# Connects to the gateway
+s.connect((Server_HOST, Server_PORT))
 my_adress = int(s.recv(1024).decode())
 
 print("\nHello ! Welcome to our TOR network.\n \nIn this network, you have the choice between opening a web page, exctracting informations about a github user or authenticate to our server.\n")
 
-answer = input("What would you like to do ? [web/git/server/quit] : ")
+answer = input("What would you like to do ? [web/git/server] : ")
 
+
+# Preparation of the messages
 if(answer == "web"):
     print("\n")
     url = input(
@@ -39,11 +43,11 @@ elif(answer == "server"):
 s.send("adresses_request".encode())
 nodes_ports = s.recv(4096)
 nodes_ports = eval(nodes_ports.decode())
-print("The total number of relays is : ", nodes_ports)
 
 length = len(nodes_ports)
 rgen = np.random.default_rng()
-# now we choose the length of the path randomly
+
+# Now we choose the length of the path randomly
 if(len(nodes_ports) == 1):
     rand_path_length = 1
 else:
@@ -53,6 +57,8 @@ path_addresses = []
 used = [my_adress]
 count = 0
 
+# Select randomly "rand_path_length" number of relays
+# The list "used" ensure that a relay won't be selected twice
 while(count < rand_path_length):
     if(length == 1):
         rand_index = 0
@@ -63,10 +69,9 @@ while(count < rand_path_length):
         used.append(int(nodes_ports[rand_index]))
         count += 1
 
-print("The path is : ", path_addresses)
-
+# Asking every relays of the path to generate an enryption key
+# And then register them in the "keys" list
 keys = []
-
 for relay_port in path_addresses:
     relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -82,6 +87,7 @@ for relay_port in path_addresses:
         print("connection failed")
         pass
 
+# Preparation of the onion. We start with the message reserved for the last node
 f = Fernet(keys[-1])
 def encrypt_message(message):
     global f
@@ -97,6 +103,7 @@ def encrypt_message(message):
 
 
 
+# Connection to the first relay of the path and send it the onion
 relay_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 relay_socket.connect((Server_HOST, path_addresses[0]))
 relay_socket.send(str(['send_to_next', encrypt_message(message)]).encode())
