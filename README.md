@@ -24,7 +24,7 @@ with "n" the number of relays you want in the network.
 	```
 for running the server, and
 	```sh
-	$ bash launch_network.sh n
+	$ python relay.py
 	```
 for running a relay (execute it n times in n terminals if you want n relays)
 
